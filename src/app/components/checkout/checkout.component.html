@@ -1,0 +1,114 @@
+<div style="max-width: 800px; margin: 0 auto;">
+  <div style="background: white; padding: 2rem; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
+    <h2 style="font-size: 2rem; margin-bottom: 2rem; color: #333; text-align: center; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+      💳 ביצוע הזמנה
+    </h2>
+
+    <div *ngIf="cartItems.length === 0" style="text-align: center; padding: 3rem;">
+      <div style="font-size: 4rem; margin-bottom: 1rem;">❌</div>
+      <h3 style="color: #666; font-size: 1.5rem; margin-bottom: 1rem;">אין פריטים בעגלה</h3>
+      <p style="color: #999; margin-bottom: 2rem;">הוסף מוצרים לעגלה כדי לבצע הזמנה</p>
+      <a routerLink="/products" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; text-decoration: none; padding: 1rem 2rem; border-radius: 25px; font-weight: bold;">
+        חזור לקנייה
+      </a>
+    </div>
+
+    <div *ngIf="cartItems.length > 0">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
+        <!-- סיכום הזמנה -->
+        <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 10px; border: 1px solid #e9ecef;">
+          <h3 style="font-size: 1.3rem; margin-bottom: 1rem; color: #333; display: flex; align-items: center; gap: 0.5rem;">
+            📋 סיכום הזמנה
+          </h3>
+          
+          <div *ngFor="let item of cartItems" style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; padding: 0.5rem 0; border-bottom: 1px solid #e9ecef;">
+            <span>{{ item.product.name }} ({{ item.quantity }})</span>
+            <span style="font-weight: bold;">₪{{ (item.product.price * item.quantity).toFixed(2) }}</span>
+          </div>
+          
+          <div style="border-top: 2px solid #333; padding-top: 1rem; margin-top: 1rem;">
+            <div style="display: flex; justify-content: space-between; font-size: 1.2rem; font-weight: bold;">
+              <span>סה"כ לתשלום:</span>
+              <span style="color: #27ae60;">₪{{ totalPrice.toFixed(2) }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- פרטי לקוח -->
+        <div>
+          <h3 style="font-size: 1.3rem; margin-bottom: 1rem; color: #333; display: flex; align-items: center; gap: 0.5rem;">
+            👤 פרטי לקוח
+          </h3>
+          
+          <form (ngSubmit)="onSubmit()" style="display: flex; flex-direction: column; gap: 1rem;">
+            <div>
+              <label style="display: block; margin-bottom: 0.5rem; font-weight: bold; color: #555;">שם מלא *</label>
+              <input 
+                [(ngModel)]="customerInfo.name" 
+                name="name"
+                type="text" 
+                required
+                placeholder="הכנס שם מלא"
+                style="width: 100%; padding: 0.75rem; border: 2px solid #e1e5e9; border-radius: 8px; font-size: 1rem; outline: none; transition: all 0.3s;"
+              />
+            </div>
+            
+            <div>
+              <label style="display: block; margin-bottom: 0.5rem; font-weight: bold; color: #555;">אימייל *</label>
+              <input 
+                [(ngModel)]="customerInfo.email" 
+                name="email"
+                type="email" 
+                required
+                placeholder="example@email.com"
+                style="width: 100%; padding: 0.75rem; border: 2px solid #e1e5e9; border-radius: 8px; font-size: 1rem; outline: none; transition: all 0.3s;"
+              />
+            </div>
+            
+            <div>
+              <label style="display: block; margin-bottom: 0.5rem; font-weight: bold; color: #555;">טלפון *</label>
+              <input 
+                [(ngModel)]="customerInfo.phone" 
+                name="phone"
+                type="tel" 
+                required
+                placeholder="050-1234567"
+                style="width: 100%; padding: 0.75rem; border: 2px solid #e1e5e9; border-radius: 8px; font-size: 1rem; outline: none; transition: all 0.3s;"
+              />
+            </div>
+            
+            <div>
+              <label style="display: block; margin-bottom: 0.5rem; font-weight: bold; color: #555;">כתובת *</label>
+              <textarea 
+                [(ngModel)]="customerInfo.address" 
+                name="address"
+                required
+                placeholder="רחוב, מספר בית, עיר, מיקוד"
+                rows="3"
+                style="width: 100%; padding: 0.75rem; border: 2px solid #e1e5e9; border-radius: 8px; font-size: 1rem; outline: none; transition: all 0.3s; resize: vertical;"
+              ></textarea>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 1rem; justify-content: center; border-top: 2px solid #e9ecef; padding-top: 2rem;">
+        <a routerLink="/cart" 
+           style="background: #6c757d; color: white; text-decoration: none; padding: 1rem 2rem; border-radius: 25px; font-size: 1rem; transition: all 0.3s;">
+          ← חזור לעגלה
+        </a>
+        
+        <button 
+          (click)="onSubmit()"
+          [disabled]="!isValidForm() || isSubmitting"
+          [style.background]="isValidForm() && !isSubmitting ? 'linear-gradient(135deg, #27ae60, #2ecc71)' : '#bdc3c7'"
+          [style.cursor]="isValidForm() && !isSubmitting ? 'pointer' : 'not-allowed'"
+          style="color: white; border: none; padding: 1rem 2rem; border-radius: 25px; font-size: 1rem; font-weight: bold; transition: all 0.3s; min-width: 160px;"
+        >
+          <span *ngIf="!isSubmitting">✅ בצע הזמנה</span>
+          <span *ngIf="isSubmitting">⏳ מעבד הזמנה...</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
